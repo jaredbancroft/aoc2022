@@ -2,18 +2,19 @@
 Advent of Code 2022
 """
 
-import argparse
+import click
 
 
+@click.command()
+@click.option("--day", default=1, help="Day to run")
 def run(day):
     """
-    Runner
+    Advent of Code 2022
+
+    To Do: Package this up as a CLI app
     """
-    print(f"I'm running {day}")
+    click.echo(f"I'm running {day}")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Advent of Code 2022")
-    parser.add_argument("day")
-    args = parser.parse_args()
-    run(args.day)
+    run()  # pylint: disable=no-value-for-parameter
