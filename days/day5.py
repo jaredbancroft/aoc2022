@@ -2,7 +2,7 @@
 Day 5
 """
 
-from collections import defaultdict
+from collections import defaultdict, deque
 from copy import deepcopy
 from typing import Any, DefaultDict
 from dataclasses import dataclass
@@ -34,6 +34,12 @@ class Crane:
         self.instruction_set = instruction_set
         self.use_9001 = use_9001
 
+    def print(self) -> None:
+        """
+        Print out the stack state
+        """
+        print(self.stack_state)
+
     def run_instruction_set(self) -> None:
         """
         Run the set of instructions
@@ -44,18 +50,35 @@ class Crane:
         print(self._get_top_crates())
 
     def _run_instruction(self, instruction: Instruction) -> None:
-        for _ in range(0, instruction.number_of_crates):
-            if self.use_9001:
+        if self.use_9001:
+            self._move2(
+                instruction.number_of_crates,
+                instruction.from_stack_number,
+                instruction.to_stack_number,
+            )
+        else:
+            for _ in range(0, instruction.number_of_crates):
                 self._move(
                     instruction.from_stack_number, instruction.to_stack_number
                 )
-            self._move(
-                instruction.from_stack_number, instruction.to_stack_number
-            )
 
     def _move(self, from_stack_number: int, to_stack_number: int) -> None:
         crate = self.stack_state[from_stack_number].pop()
         self.stack_state[to_stack_number].append(crate)
+
+    def _move2(
+        self,
+        number_of_crates: int,
+        from_stack_number: int,
+        to_stack_number: int,
+    ) -> None:
+        crates = deque()
+
+        for _ in range(number_of_crates):
+            crates.appendleft(self.stack_state[from_stack_number].pop())
+
+        for _ in range(number_of_crates):
+            self.stack_state[to_stack_number].append(crates.popleft())
 
     def _get_top_crates(self) -> str:
         top_crates: list[str] = []
@@ -119,18 +142,11 @@ def solution() -> None:
     stack_state = parse_stack_state(initial_puzzle_state)
     instruction_set = parse_instructions(puzzle_instructions)
 
-    crane_part1 = Crane(stack_state, instruction_set)
-    print(hex(id(crane_part1.stack_state)))
+    crane_part1 = Crane(deepcopy(stack_state), instruction_set)
     crane_part1.run_instruction_set()
-    print(crane_part1.stack_state)
 
-    crane_part2 = Crane(deepcopy(stack_state), instruction_set, use_9001=True)
-    print(crane_part2.stack_state)
-    # crane_part2.run_instruction_set()
-    # print(stacks)
-    # move = stacks[2].pop()
-    # stacks[1].append(move)
-    # print(stacks)
+    crane_part2 = Crane(stack_state, instruction_set, use_9001=True)
+    crane_part2.run_instruction_set()
 
 
 if __name__ == "__main__":
